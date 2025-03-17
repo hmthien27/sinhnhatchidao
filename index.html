@@ -85,8 +85,8 @@
         
         .gift-box {
             position: relative;
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             margin: 20px auto;
             perspective: 1000px;
             cursor: pointer;
@@ -273,6 +273,11 @@
         #imageUpload, #uploadButton {
             display: none;
         }
+        
+        /* CSS cho audio control */
+        .audio-control {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -297,6 +302,14 @@
         </div>
         <button class="button" id="celebrateButton">Bắt đầu lễ mừng</button>
         <div id="balloonContainer"></div>
+        
+        <!-- Thêm audio cho bài hát Happy Birthday (ẩn mặc định) -->
+        <audio id="birthdaySong" preload="auto">
+            <source src="https://cdn.jsdelivr.net/gh/soundbible/happy-birthday-song/HappyBirthdayInstrumental.mp3" type="audio/mpeg">
+            <!-- Backup nhạc nếu link trên không hoạt động -->
+            <source src="https://www2.cs.uic.edu/~i101/SoundFiles/HappyBirthday.mp3" type="audio/mpeg">
+            <!-- Có thể thêm nhiều nguồn nhạc khác nhau -->
+        </audio>
         
         <!-- Thêm nút để tải ảnh lên - đã ẩn -->
         <div style="margin-top: 30px;">
@@ -441,9 +454,9 @@
             const gallery = document.getElementById('photoGallery');
             const photos = [
                 { src: 'images/sinhnhat1.jpg', caption: 'Chị Đào xinh đẹp' },
-                { src: 'images/sinhnhat2.jpg', caption: 'Chị Đào xinh đẹp' },
-                { src: 'images/sinhnhat3.jpg', caption: 'Chị Đào xinh đẹp' },
-                { src: 'images/sinhnhat4.jpg', caption: 'Chị Đào xinh đẹp' },
+                { src: 'images/sinhnhat2.jpg', caption: 'Chị Đào cute' },
+                { src: 'images/sinhnhat3.jpg', caption: 'Chị Đào dễ thương' },
+                { src: 'images/sinhnhat4.jpg', caption: 'Chị Đào so cute' },
                 { src: 'images/sinhnhat5.jpg', caption: 'Chị Đào xinh đẹp' }
             ];
             
@@ -515,8 +528,19 @@
             createFirework(event.clientX, event.clientY);
         });
 
+        // Lấy tham chiếu đến phần tử audio
+        const birthdaySong = document.getElementById('birthdaySong');
+
         // Khi nút được nhấn
         document.getElementById('celebrateButton').addEventListener('click', function() {
+            // Phát nhạc sinh nhật
+            birthdaySong.volume = 0.7; // Điều chỉnh âm lượng
+            birthdaySong.play().catch(e => {
+                console.log('Không thể phát âm thanh tự động:', e);
+                // Thông báo cho người dùng nhấn thêm một lần nữa để phát nhạc
+                alert('Vui lòng nhấn lần nữa để phát nhạc sinh nhật!');
+            });
+            
             // Tạo confetti
             const confettiInterval = setInterval(createConfetti, 100);
             
@@ -548,14 +572,6 @@
             // Thay đổi nút để không nhấn lại
             this.textContent = 'Đang ăn mừng! 🎉';
             this.disabled = true;
-            
-            // Chơi âm thanh sinh nhật
-            try {
-                const audio = new Audio('https://cdnjs.cloudflare.com/ajax/libs/party-js/2.1.1/party.min.js');
-                audio.play().catch(e => console.log('Không thể phát âm thanh'));
-            } catch (e) {
-                console.log('Không thể phát âm thanh');
-            }
         });
 
         // Tạo các mẫu ảnh và hiệu ứng khi trang được tải
@@ -567,6 +583,9 @@
             
             // Tạo gallery ảnh mẫu
             createSamplePhotos();
+            
+            // Chuẩn bị nhạc sinh nhật
+            birthdaySong.load();
         });
 
         // Tạo một số pháo hoa ngẫu nhiên để trang trí
@@ -577,7 +596,6 @@
                 createFirework(x, y);
             }
         }, 2000);
-
     
     </script>
 </body>
