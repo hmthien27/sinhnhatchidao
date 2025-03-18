@@ -274,9 +274,9 @@
             display: none;
         }
         
-        /* CSS cho audio control */
-        .audio-control {
-            margin-top: 20px;
+        /* CSS cho audio control - ẩn đi */
+        audio {
+            display: none;
         }
     </style>
 </head>
@@ -303,12 +303,9 @@
         <button class="button" id="celebrateButton">Bắt đầu lễ mừng</button>
         <div id="balloonContainer"></div>
         
-        <!-- Thêm audio cho bài hát Happy Birthday (ẩn mặc định) -->
-        <audio id="birthdaySong" preload="auto">
-            <source src="https://cdn.jsdelivr.net/gh/soundbible/happy-birthday-song/HappyBirthdayInstrumental.mp3" type="audio/mpeg">
-            <!-- Backup nhạc nếu link trên không hoạt động -->
-            <source src="https://www2.cs.uic.edu/~i101/SoundFiles/HappyBirthday.mp3" type="audio/mpeg">
-            <!-- Có thể thêm nhiều nguồn nhạc khác nhau -->
+        <!-- Đổi thành tệp nhạc local và thêm thuộc tính loop -->
+        <audio id="birthdaySong" preload="auto" loop>
+            <source src="E:\sinhnhatchidao-main\happy-birthday.mp3" type="audio/mpeg">
         </audio>
         
         <!-- Thêm nút để tải ảnh lên - đã ẩn -->
@@ -531,14 +528,49 @@
         // Lấy tham chiếu đến phần tử audio
         const birthdaySong = document.getElementById('birthdaySong');
 
-        // Khi nút được nhấn
+        // Thêm code để phát nhạc tự động khi trang tải xong
+        document.addEventListener('DOMContentLoaded', function() {
+            // Phát nhạc khi trang tải xong
+            try {
+                birthdaySong.play().catch(error => {
+                    console.log('Không thể phát tự động:', error);
+                    // Lưu ý: Nhiều trình duyệt không cho phép phát âm thanh tự động
+                    // Do đó, chúng ta cần phát nhạc khi người dùng tương tác với trang web
+                    
+                    // Phát nhạc khi người dùng click vào bất kỳ chỗ nào trên trang
+                    document.addEventListener('click', function playOnce() {
+                        birthdaySong.play().catch(e => console.log('Vẫn không thể phát:', e));
+                        document.removeEventListener('click', playOnce); // Chỉ phát một lần
+                    }, { once: true });
+                });
+                
+                // Đảm bảo nhạc tiếp tục phát khi kết thúc
+                birthdaySong.addEventListener('ended', function() {
+                    birthdaySong.currentTime = 0; // Quay lại đầu bài
+                    birthdaySong.play().catch(e => console.log('Không thể phát lại:', e));
+                });
+            } catch (error) {
+                console.log('Lỗi khi phát nhạc:', error);
+            }
+            
+            // Tạo một số bóng bay mặc định
+            for (let i = 0; i < 5; i++) {
+                createBalloon();
+            }
+            
+            // Tạo gallery ảnh mẫu
+            createSamplePhotos();
+            
+            // Tạo hiệu ứng trái tim
+            createHearts();
+        });
+
+        // Xử lý nút "Bắt đầu lễ mừng"
         document.getElementById('celebrateButton').addEventListener('click', function() {
-            // Phát nhạc sinh nhật
+            // Đảm bảo nhạc đang phát
             birthdaySong.volume = 0.7; // Điều chỉnh âm lượng
             birthdaySong.play().catch(e => {
-                console.log('Không thể phát âm thanh tự động:', e);
-                // Thông báo cho người dùng nhấn thêm một lần nữa để phát nhạc
-                alert('Vui lòng nhấn lần nữa để phát nhạc sinh nhật!');
+                console.log('Không thể phát âm thanh:', e);
             });
             
             // Tạo confetti
@@ -566,26 +598,9 @@
                 createFirework(x, y);
             }, 1000);
             
-            // Thêm hiệu ứng trái tim
-            createHearts();
-            
             // Thay đổi nút để không nhấn lại
             this.textContent = 'Đang ăn mừng! 🎉';
             this.disabled = true;
-        });
-
-        // Tạo các mẫu ảnh và hiệu ứng khi trang được tải
-        document.addEventListener('DOMContentLoaded', function() {
-            // Tạo một số bóng bay mặc định
-            for (let i = 0; i < 5; i++) {
-                createBalloon();
-            }
-            
-            // Tạo gallery ảnh mẫu
-            createSamplePhotos();
-            
-            // Chuẩn bị nhạc sinh nhật
-            birthdaySong.load();
         });
 
         // Tạo một số pháo hoa ngẫu nhiên để trang trí
@@ -596,12 +611,6 @@
                 createFirework(x, y);
             }
         }, 2000);
-    
-        // âm thanh
-        document.getElementById('celebrateButton').addEventListener('click', function() {
-            document.getElementById('birthdaySong').play();
-        });
-
     </script>
 </body>
 </html>
